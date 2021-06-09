@@ -105,7 +105,7 @@ if len(sys.argv) == 2:
 				if bytesArray[0] == 0x02 or bytesArray[0] == 0x20:
 					shift= True
 				
-                #either shift is pressed we take the ucasekey 
+                #see if shift is pressed, we take the ucasekey 
 				if shift :
 					print(ucasekey[int(bytesArray[2])], end=''),  #single line output
 					shift= False
