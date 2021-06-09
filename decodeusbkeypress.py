@@ -1,3 +1,4 @@
+#!/usr/bin/python
 # coding: utf-8
 from __future__ import print_function
 import sys,os
@@ -82,6 +83,11 @@ lcasekey[97]="9";          ucasekey[97]="9"
 lcasekey[98]="0";          ucasekey[98]="0"
 lcasekey[99]=".";          ucasekey[99]="."
 
+# check if shift or caplock is enabled
+shift = False
+lock=False
+
+
 #make sure filename to open has been provided
 if len(sys.argv) == 2:
 	keycodes = open(sys.argv[1])
@@ -89,14 +95,28 @@ if len(sys.argv) == 2:
 		#dump line to bytearray
 		bytesArray = bytearray.fromhex(line.strip())
 		#see if we have a key code
+		#print (bytesArray[2])
 		val = int(bytesArray[2])
 		if val > 3 and val < 100:
-			#see if left shift or right shift was held down
-			if bytesArray[0] == 0x02 or bytesArray[0] == 0x20 :
-				print(ucasekey[int(bytesArray[2])], end=''),  #single line output
-				#print(ucasekey[int(bytesArray[2])])            #newline output
+			if bytesArray[2] == 0x39:
+				lock = not lock                
 			else:
-				print(lcasekey[int(bytesArray[2])], end=''),  #single line output
-				#print(lcasekey[int(bytesArray[2])])            #newline output
+				#see if left shift or right shift was held down
+				if bytesArray[0] == 0x02 or bytesArray[0] == 0x20:
+					shift= True
+				
+                #either shift is pressed we take the ucasekey 
+				if shift :
+					print(ucasekey[int(bytesArray[2])], end=''),  #single line output
+					shift= False
+				#check if caplock is enabled and if not a tricky key, we take the usecasekey                 
+				elif lock and not ((val >29 and val < 40) or (val > 44 and val<57)):
+					print(ucasekey[int(bytesArray[2])], end=''),  #single line output
+				#if shift and lock not enabled, we take lcasekey
+				else:
+					print(lcasekey[int(bytesArray[2])], end=''),  #single line output
+					#print(lcasekey[int(bytesArray[2])])            #newline output
+            
+					#print(ucasekey[int(bytesArray[2])])            #newline output
 else:
-    print("USAGE: python %s [filename]" % os.path.basename(__file__))
+	print("USAGE: python %s [filename]" % os.path.basename(__file__))
